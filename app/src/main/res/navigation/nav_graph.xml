@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/restaurantListFragment2">
+
+    <fragment
+        android:id="@+id/restaurantListFragment2"
+        android:name="com.myglammtest.ui.main.RestaurantListFragment"
+        android:label="fragment_resturant_list"
+        tools:layout="@layout/fragment_resturant_list" />
+</navigation>

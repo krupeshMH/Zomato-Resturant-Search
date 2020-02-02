@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">MyGlammTest</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="allow_permission">Allow location permission</string>
+    <string name="text_resturants_found">Restaurants found...</string>
+    <string name="text_resturants_absent">No restaurants found!!!</string>
+    <string name="generic_error_msg">Something went wrong!!! Please try again later</string>
+    <string name="search">Search</string>
+    <string name="search_view_hint">Enter city, restaurant...</string>
+    <string name="loading_text">Loading restaurants...</string>
+</resources>
