@@ -36,7 +36,6 @@ class RestaurantSearchViewModel @Inject constructor(application: Application, ap
     ) {
         val map = mapOf("user-key" to BuildConfig.API_KEY)
         listRestaurant.setValue(Resource.loading(null))
-        searchDisposable?.dispose()
         searchDisposable = searchApi.search(map,
             text,
             latitude, longitude,
@@ -51,5 +50,11 @@ class RestaurantSearchViewModel @Inject constructor(application: Application, ap
                 listRestaurant.setValue(Resource.error("Something went wrong!!!", null))
 
             })
+
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        searchDisposable?.dispose()
     }
 }
