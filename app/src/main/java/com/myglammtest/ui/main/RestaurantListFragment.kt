@@ -3,6 +3,7 @@ package com.myglammtest.ui.main
 
 import android.Manifest
 import android.content.Context
+import android.content.DialogInterface
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.TextUtils
@@ -24,6 +25,7 @@ import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 import android.content.Intent
 import android.location.LocationManager
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.myglammtest.models.response.Restaurant
@@ -66,10 +68,7 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
         if (gpsEnabled)
             checkLocationPermission()
         else {
-            val intent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context?.startActivity(intent)
-            activity?.finish()
+            showGPSDialog()
         }
 
     }
@@ -220,5 +219,32 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
 
     override fun onItemSelected(position: Int, item: Restaurant) {
     }
-}
 
+    private fun showGPSDialog() {
+        val dialogBuilder = AlertDialog.Builder(context!!)
+
+        // set message of alert dialog
+        dialogBuilder.setMessage("GPS needed to retrieve nearby location. Click Proceed")
+            // if the dialog is cancelable
+            .setCancelable(false)
+            .setPositiveButton("Proceed") { dialog, id ->
+                val intent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context?.startActivity(intent)
+                activity?.finish()
+            }
+            // negative button text and action
+            .setNegativeButton("Cancel") { dialog, id ->
+                activity?.finish()
+            }
+
+        // create dialog box
+        val alert = dialogBuilder.create()
+        // set title for alert dialog box
+        alert.setTitle("GPS Required")
+        // show alert dialog
+        alert.show()
+
+
+    }
+}
