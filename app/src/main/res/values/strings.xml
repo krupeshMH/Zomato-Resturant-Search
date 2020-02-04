@@ -8,6 +8,6 @@
     <string name="text_resturants_absent">No restaurants found!!!</string>
     <string name="generic_error_msg">Something went wrong!!! Please try again later</string>
     <string name="search">Search</string>
-    <string name="search_view_hint">Enter city, restaurant...</string>
+    <string name="search_view_hint">Enter restaurant...</string>
     <string name="loading_text">Loading restaurants...</string>
 </resources>
