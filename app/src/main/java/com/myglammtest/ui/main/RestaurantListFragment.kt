@@ -2,6 +2,7 @@ package com.myglammtest.ui.main
 
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.TextUtils
@@ -22,10 +23,10 @@ import com.myglammtest.viewmodels.ViewModelProviderFactory
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 import android.content.Intent
+import android.location.LocationManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.myglammtest.models.response.Restaurant
-import com.myglammtest.models.response.RestaurantsResponse
 import com.myglammtest.ui.main.adapter.RestaurantListAdapter
 
 
@@ -53,7 +54,23 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
         viewModel = ViewModelProviders.of(this, providerFactory)
             .get(RestaurantSearchViewModel::class.java!!)
 
-        checkLocationPermission()
+        val lm: LocationManager =
+            context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        var gpsEnabled = false
+
+        try {
+            gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        } catch (ex1: Exception) {
+        }
+
+        if (gpsEnabled)
+            checkLocationPermission()
+        else {
+            val intent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context?.startActivity(intent)
+            activity?.finish()
+        }
 
     }
 
@@ -94,12 +111,11 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
             if (context?.let {
                     ActivityCompat.checkSelfPermission(
                         it,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        Manifest.permission.ACCESS_FINE_LOCATION
                     )
                 } != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions( //Method of Fragment
                     arrayOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION
                     ),
                     PERMISSION_LOCATION_REQUEST_CODE

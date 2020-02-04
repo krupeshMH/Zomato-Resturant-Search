@@ -8,7 +8,7 @@ import retrofit2.http.HeaderMap
 import retrofit2.http.Query
 
 interface SearchAPI {
-    @GET("api/v2.1//search")
+    @GET("api/v2.1/search")
     fun search(
         @HeaderMap apiKey:Map<String, String>,
         @Query("q") searchText: String,
