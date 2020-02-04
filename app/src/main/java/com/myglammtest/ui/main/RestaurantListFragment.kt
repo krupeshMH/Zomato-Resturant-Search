@@ -2,8 +2,7 @@ package com.myglammtest.ui.main
 
 
 import android.Manifest
-import android.content.Context
-import android.content.DialogInterface
+import android.content.*
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.TextUtils
@@ -23,23 +22,25 @@ import com.myglammtest.ui.Resource
 import com.myglammtest.viewmodels.ViewModelProviderFactory
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
-import android.content.Intent
 import android.location.LocationManager
+import android.net.Uri
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.myglammtest.BuildConfig
 import com.myglammtest.models.response.Restaurant
 import com.myglammtest.ui.main.adapter.RestaurantListAdapter
 
 
 class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
-    View.OnClickListener, RestaurantListAdapter.Interaction {
+    RestaurantListAdapter.Interaction {
 
     private var viewModel: RestaurantSearchViewModel? = null
     lateinit var editsearch: SearchView
     lateinit var txtInfo: TextView
     lateinit var btnPermission: Button
-    lateinit var recycler_view: RecyclerView
+    private lateinit var recyclerView: RecyclerView
     var latitude: Double = 0.0
     var longitude: Double = 0.0
     private val PERMISSION_LOCATION_REQUEST_CODE = 1
@@ -54,8 +55,15 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
         super.onCreate(savedInstanceState)
 
         viewModel = ViewModelProviders.of(this, providerFactory)
-            .get(RestaurantSearchViewModel::class.java!!)
+            .get(RestaurantSearchViewModel::class.java)
+    }
 
+    override fun onResume() {
+        super.onResume()
+        checkGPSEnabled()
+    }
+
+    private fun checkGPSEnabled() {
         val lm: LocationManager =
             context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         var gpsEnabled = false
@@ -70,7 +78,6 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
         else {
             showGPSDialog()
         }
-
     }
 
     override fun onCreateView(
@@ -81,9 +88,7 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
         editsearch = view.findViewById(R.id.searchView) as SearchView
         editsearch.setOnQueryTextListener(this)
         txtInfo = view.findViewById(R.id.txt_info) as TextView
-        btnPermission = view.findViewById(R.id.btn_permission) as Button
-        btnPermission.setOnClickListener(this)
-        recycler_view = view.findViewById(R.id.recyclerView_main) as RecyclerView
+        recyclerView = view.findViewById(R.id.recyclerView_main) as RecyclerView
 
         editsearch.setIconifiedByDefault(true)
         editsearch.setFocusable(true)
@@ -119,15 +124,13 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
                     ),
                     PERMISSION_LOCATION_REQUEST_CODE
                 )
-            } else {
-
             }
-
         }
     }
 
+
     private fun initRecyclerView() {
-        recycler_view.apply {
+        recyclerView.apply {
             layoutManager = LinearLayoutManager(activity)
             mainRecyclerAdapter = RestaurantListAdapter(this@RestaurantListFragment)
             adapter = mainRecyclerAdapter
@@ -145,7 +148,7 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
                 }
                 Resource.Status.SUCCESS -> {
                     if (response.data?.resultsFound != null) {
-                        val numberRest = response.data?.resultsFound
+                        val numberRest = response.data.resultsFound
                         if (numberRest > 0)
                             txtInfo.text = getString(R.string.text_resturants_found)
                         else
@@ -194,8 +197,27 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     startLocationUpdate()
                 } else {
+                    if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                        // user rejected the permission
+                        val showRationale =
+                            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+                        if (!showRationale) {
+                            // user also CHECKED "never ask again"
+                            Toast.makeText(context, "Grant location permission", Toast.LENGTH_LONG)
+                                .show()
+                            val intent = Intent(
+                                android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:" + BuildConfig.APPLICATION_ID)
+                            )
+                            startActivity(intent)
+                        } else {
+                            // user did NOT check "never ask again"
+                            activity?.finish()
+                        }
+                    }
+
                     // permission denied
-                    btnPermission.visibility = View.VISIBLE
+                    activity?.finish()
                 }
                 return
             }
@@ -206,16 +228,6 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
         }
     }
 
-    override fun onClick(v: View) {
-        when (v.id) {
-            R.id.btn_permission -> {
-                val intent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context?.startActivity(intent)
-                activity?.finish()
-            }
-        }
-    }
 
     override fun onItemSelected(position: Int, item: Restaurant) {
     }
@@ -231,7 +243,7 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
                 val intent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context?.startActivity(intent)
-                activity?.finish()
+                //activity?.finish()
             }
             // negative button text and action
             .setNegativeButton("Cancel") { dialog, id ->
@@ -244,7 +256,7 @@ class RestaurantListFragment : DaggerFragment(), SearchView.OnQueryTextListener,
         alert.setTitle("GPS Required")
         // show alert dialog
         alert.show()
-
-
     }
+
+
 }
