@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/restaurantListFragment2"
-        android:name="com.myglammtest.ui.main.RestaurantListFragment"
+        android:name="com.restaurants.ui.main.RestaurantListFragment"
         android:label="fragment_resturant_list"
         tools:layout="@layout/fragment_resturant_list" />
 </navigation>
